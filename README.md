@@ -32,3 +32,8 @@
 해결방법 :: 관리자 모드로 Visual Studio를 열면된다. 
 
 ---
+
+vs2022 설치 추가.
+
+![image](https://github.com/aseuka/JSFW.VS.Extensibility2019.FindMethodList/assets/116536524/7e460abc-7b3a-4ffb-b5b8-9c40add70458)
+
