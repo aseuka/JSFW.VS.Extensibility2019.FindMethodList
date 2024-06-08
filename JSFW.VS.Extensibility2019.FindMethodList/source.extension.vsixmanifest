@@ -1,12 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="JSFW.VS.Extensibility2019.FindingMethodList.1794495d-39ee-4ec0-bb12-e7c63313971d" Version="1.0" Language="en-US" Publisher="지송닷넷" />
+        <Identity Id="JSFW.VS.Extensibility2019.FindingMethodList.1794495d-39ee-4ec0-bb12-e7c63313971d" Version="2.0" Language="ko-KR" Publisher="지송닷넷" />
         <DisplayName>JSFW.VS.Extensibility2019.FindingMethodList</DisplayName>
-        <Description>Empty VSIX Project.</Description>
+        <Description xml:space="preserve">VS 2022로 변경 2022</Description>
     </Metadata>
-    <Installation InstalledByMsi="false">
-        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0,)"/>
+    <Installation>
+        <InstallationTarget Version="[16.0, 18.0)" Id="Microsoft.VisualStudio.Community">
+            <ProductArchitecture>x86</ProductArchitecture>
+        </InstallationTarget>
+        <InstallationTarget Version="[16.0,18.0)" Id="Microsoft.VisualStudio.Community">
+            <ProductArchitecture>amd64</ProductArchitecture>
+        </InstallationTarget>
     </Installation>
     <Dependencies>
         <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
