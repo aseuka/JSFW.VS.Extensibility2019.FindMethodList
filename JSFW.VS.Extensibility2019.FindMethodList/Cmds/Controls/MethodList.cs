@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Input;
 using EnvDTE;
 using JSFW;
 
@@ -96,7 +97,12 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 {
                     ListViewItem lstItem = new ListViewItem(subitem.DisplayText, lvg);
                     listView1.Items.Add(lstItem);
-                    lstItem.Tag = subitem;  
+                    lstItem.Tag = subitem;
+
+                    KeywordClass kw = subitem.GetKeyword();
+                    if (kw != null) {
+                        lstItem.SubItems.Add(kw.Comment);
+                    }
                 }
             }
 
@@ -292,8 +298,14 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                     settingForm = null;
                 };
             }
-
+             
             settingForm.Load_Keywords();
+
+            if ( ( ModifierKeys & Keys.Control ) == Keys.Control && 
+                0 < listView1.SelectedItems.Count)
+            {
+                settingForm.SetMethodName(listView1.SelectedItems[0].Text);
+            }
 
             settingForm.ShowDialog(this); 
 
@@ -389,22 +401,25 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
 
             MethodCodeFunctionObject item = e.Item.Tag as MethodCodeFunctionObject;
             if (item == null) return;
-
+              
             Color ItemForeColor = e.Item.ForeColor;
             KeywordClass kw = item.GetKeyword();
+
+            string displayText = $"{item.DisplayText,-45} {kw?.Comment}".TrimEnd();
+
             if (kw != null)
-            {
+            { 
                 if (e.State == (ListViewItemStates.Selected | ListViewItemStates.Focused))
                 {
                     // vs가 어둡게일때 - 글씨를 흰색으로 배경을 ... 
                     using (var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
-                        TextRenderer.DrawText(e.Graphics, item.DisplayText, fnt, e.Bounds.Location, e.Item.BackColor, kw.ForeColor);
+                        TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, e.Item.BackColor, kw.ForeColor);
                     ItemForeColor = e.Item.BackColor;
                 }
                 else
                 {
                     using (var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
-                        TextRenderer.DrawText(e.Graphics, item.DisplayText, fnt, e.Bounds.Location, kw.ForeColor, e.Item.BackColor);
+                        TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, kw.ForeColor, e.Item.BackColor);
                     ItemForeColor = kw.ForeColor;
                 } 
             }
@@ -414,13 +429,13 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 {
                     // vs가 어둡게일때 - 글씨를 흰색으로 배경을 ... 
                     using (var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
-                        TextRenderer.DrawText(e.Graphics, item.DisplayText, fnt, e.Bounds.Location, Color.White, Color.DodgerBlue);
+                        TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, Color.White, Color.DodgerBlue);
                     ItemForeColor = Color.White;
                 }
                 else
                 {
                     using (var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
-                        TextRenderer.DrawText(e.Graphics, item.DisplayText, fnt, e.Bounds.Location, Color.DodgerBlue);
+                        TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, Color.DodgerBlue);
                     ItemForeColor = Color.DodgerBlue;
                 } 
             }
@@ -430,12 +445,12 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 {
                     // vs가 어둡게일때 - 글씨를 흰색으로 배경을 ... 
                     using( var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
-                    TextRenderer.DrawText(e.Graphics, item.DisplayText, fnt, e.Bounds.Location, e.Item.BackColor, e.Item.ForeColor);
+                    TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, e.Item.BackColor, e.Item.ForeColor);
                     ItemForeColor = e.Item.BackColor;
                 }
                 else
                 {
-                    TextRenderer.DrawText(e.Graphics, item.DisplayText, e.Item.Font, e.Bounds.Location, e.Item.ForeColor, e.Item.BackColor);
+                    TextRenderer.DrawText(e.Graphics, displayText, e.Item.Font, e.Bounds.Location, e.Item.ForeColor, e.Item.BackColor);
                     ItemForeColor = e.Item.ForeColor;
                 }
             }
@@ -479,6 +494,20 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             }
 
         }
+
+        private void MethodList_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                listView1.SelectedItems.Clear();
+                listView1.Update();
+            }
+        }
+
+        private void listView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            MethodList_KeyDown(sender, e);
+        }
     }
 
     public class KeywordClass
@@ -486,6 +515,8 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
         public string Name { get; set; }
 
         public string HTMLColor { get; set; } = System.Drawing.ColorTranslator.ToHtml(Color.Black);
+
+        public string Comment { get; set; } 
 
         public Color ForeColor
         {

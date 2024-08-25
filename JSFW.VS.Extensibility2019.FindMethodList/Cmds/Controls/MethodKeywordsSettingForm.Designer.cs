@@ -33,14 +33,14 @@
             this.btnDelOK = new System.Windows.Forms.Button();
             this.btnDelCancel = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
-            this.keywordEditControl1 = new KeywordEditControl();
+            this.keywordEditControl1 = new JSFW.VS.Extensibility.Cmds.Controls.KeywordEditControl();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.SuspendLayout();
             // 
             // btnAdd
             // 
             this.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAdd.Location = new System.Drawing.Point(301, 9);
+            this.btnAdd.Location = new System.Drawing.Point(674, 12);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(54, 26);
             this.btnAdd.TabIndex = 1;
@@ -51,7 +51,7 @@
             // btnDel
             // 
             this.btnDel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDel.Location = new System.Drawing.Point(361, 9);
+            this.btnDel.Location = new System.Drawing.Point(734, 12);
             this.btnDel.Name = "btnDel";
             this.btnDel.Size = new System.Drawing.Size(54, 26);
             this.btnDel.TabIndex = 1;
@@ -62,7 +62,7 @@
             // btnDelOK
             // 
             this.btnDelOK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDelOK.Location = new System.Drawing.Point(301, 9);
+            this.btnDelOK.Location = new System.Drawing.Point(674, 12);
             this.btnDelOK.Name = "btnDelOK";
             this.btnDelOK.Size = new System.Drawing.Size(54, 26);
             this.btnDelOK.TabIndex = 1;
@@ -73,7 +73,7 @@
             // btnDelCancel
             // 
             this.btnDelCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDelCancel.Location = new System.Drawing.Point(361, 9);
+            this.btnDelCancel.Location = new System.Drawing.Point(734, 12);
             this.btnDelCancel.Name = "btnDelCancel";
             this.btnDelCancel.Size = new System.Drawing.Size(54, 26);
             this.btnDelCancel.TabIndex = 1;
@@ -85,7 +85,7 @@
             // 
             this.button3.FlatAppearance.BorderColor = System.Drawing.Color.Maroon;
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button3.Location = new System.Drawing.Point(437, 9);
+            this.button3.Location = new System.Drawing.Point(810, 12);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(54, 26);
             this.button3.TabIndex = 1;
@@ -96,14 +96,14 @@
             // keywordEditControl1
             // 
             this.keywordEditControl1.IsNEW = true;
-            this.keywordEditControl1.Location = new System.Drawing.Point(12, 9);
+            this.keywordEditControl1.Location = new System.Drawing.Point(19, 13);
             this.keywordEditControl1.MaximumSize = new System.Drawing.Size(3000, 26);
             this.keywordEditControl1.MinimumSize = new System.Drawing.Size(283, 26);
             this.keywordEditControl1.Name = "keywordEditControl1";
             this.keywordEditControl1.Padding = new System.Windows.Forms.Padding(2);
-            this.keywordEditControl1.Size = new System.Drawing.Size(283, 26);
+            this.keywordEditControl1.Size = new System.Drawing.Size(647, 26);
             this.keywordEditControl1.TabIndex = 0;
-            this.keywordEditControl1.EditCommit += new System.Action<KeywordEditControl>(this.keywordEditControl1_EditCommit);
+            this.keywordEditControl1.EditCommit += new System.Action<JSFW.VS.Extensibility.Cmds.Controls.KeywordEditControl>(this.keywordEditControl1_EditCommit);
             // 
             // flowLayoutPanel1
             // 
@@ -115,7 +115,7 @@
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(12, 42);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(479, 576);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(852, 493);
             this.flowLayoutPanel1.TabIndex = 2;
             this.flowLayoutPanel1.WrapContents = false;
             // 
@@ -124,7 +124,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.ClientSize = new System.Drawing.Size(503, 630);
+            this.ClientSize = new System.Drawing.Size(876, 547);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.btnDel);

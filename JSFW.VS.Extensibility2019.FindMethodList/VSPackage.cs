@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
@@ -87,22 +88,31 @@ namespace JSFW.VS.Extensibility.FindMethodList
                  Window.ActivateQuickLaunch 
             */
 
-            var _applicationObject = ServiceProvider.GetService(typeof(EnvDTE.DTE)) as EnvDTE80.DTE2;
-            foreach (EnvDTE.Command cmd in _applicationObject.Commands)
-            {
-                switch (cmd.Name)
+            // VSTHRD010 메인 스레드에서 단일 스레드 유형 호출
+            // 커맨드... 변경 곳에서 안보이던 경고메세지들이 눈에 띈다. 
+            // 2022로 소스를 열었더니.... 
+            Microsoft.VisualStudio.Shell.ThreadHelper.JoinableTaskFactory.Run(async delegate {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                /*UI code here*/
+                var _applicationObject = ServiceProvider.GetService(typeof(EnvDTE.DTE)) as EnvDTE80.DTE2;
+                foreach (EnvDTE.Command cmd in _applicationObject.Commands)
                 {
-                    default: break;
+                    switch (cmd.Name)
+                    {
+                        default: break;
 
-                    case "Window.ActivateQuickLaunch": // 빠른실행
-                        cmd.Bindings = new object[] { }; // 제거
-                        break;
-                    
-                    case "EditorContextMenus.CodeWindow.메소드찾아가기":
-                        cmd.Bindings = new object[] { "전역::CTRL+1" };
-                        break;
+                        case "Window.ActivateQuickLaunch": // 빠른실행
+                            cmd.Bindings = new object[] { }; // 제거
+                            break;
+
+                        case "EditorContextMenus.CodeWindow.메소드찾아가기":
+                            cmd.Bindings = new object[] { "전역::CTRL+1" };
+                            break;
+                    }
                 }
-            }
+
+            }); 
+            
         }
         #endregion
     }

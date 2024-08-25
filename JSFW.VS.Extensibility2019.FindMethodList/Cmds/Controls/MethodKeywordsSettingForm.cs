@@ -33,7 +33,11 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             if (hasKeyword == false)
             {
                 KeywordEditControl edit = new KeywordEditControl();
-                edit.SetKeywordInfo(new KeywordClass() { Name = obj.KeyWordText, HTMLColor = KeywordClass.ConvertHTMLColor(obj.KeywordForeColor) });
+                edit.SetKeywordInfo(new KeywordClass() { 
+                        Name = obj.KeyWordText, 
+                        HTMLColor = KeywordClass.ConvertHTMLColor(obj.KeywordForeColor), 
+                        Comment = obj.Comment
+                });
                 flowLayoutPanel1.Controls.Add(edit);
             }
             else
@@ -98,7 +102,11 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             List<KeywordClass> newKeywords = new List<KeywordClass>();
             foreach (KeywordEditControl kwEdit in flowLayoutPanel1.Controls)
             {
-                newKeywords.Add(new KeywordClass() { Name = kwEdit.KeyWordText, HTMLColor = KeywordClass.ConvertHTMLColor(kwEdit.KeywordForeColor) });
+                newKeywords.Add(new KeywordClass() { 
+                    Name = kwEdit.KeyWordText, 
+                    HTMLColor = KeywordClass.ConvertHTMLColor(kwEdit.KeywordForeColor), 
+                    Comment = kwEdit.Comment,    
+                });
             }
             MethodList.MethodCodeFunctionObject.Save_Keywords(newKeywords);
         }
@@ -142,5 +150,25 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             }
         }
 
+        internal void SetMethodName(string methodName)
+        {
+            int idx = methodName.IndexOf('(');
+            if (0 < idx)
+            {
+                methodName = methodName.Substring(0, idx);
+            }
+
+            KeywordClass mth = MethodList.MethodCodeFunctionObject.Keywords.Find(m => m.Name == methodName);
+            if (mth != null)
+            {
+                keywordEditControl1.SetKeywordInfo(mth);
+            }
+            else
+            {
+                keywordEditControl1.SetKeywordText(methodName);
+            }
+            
+
+        }
     }
 }
