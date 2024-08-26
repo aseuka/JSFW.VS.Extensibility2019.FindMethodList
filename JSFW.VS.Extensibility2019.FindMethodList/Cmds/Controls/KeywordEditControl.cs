@@ -14,8 +14,6 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
     { 
         public string KeyWordText { get { return textBox1.Text.Trim(); } }
 
-        public string Comment { get { return txtComment.Text.Trim(); } }
-
         public Color KeywordForeColor { get { return textBox1.ForeColor; } }
 
         public bool IsNEW { get; set; } = false;
@@ -31,7 +29,6 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
         {
             textBox1.Text = keyword.Name;
             textBox1.ForeColor = keyword.ForeColor;
-            txtComment.Text = keyword.Comment;
         }
 
         private void button1_Click(object sender, EventArgs e)

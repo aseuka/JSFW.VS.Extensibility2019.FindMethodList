@@ -33,6 +33,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.listView1 = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.methodHintEdit1 = new JSFW.VS.Extensibility.Cmds.Controls.MethodHintEdit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -96,15 +97,31 @@
             this.columnHeader1.Text = "Method Name";
             this.columnHeader1.Width = 630;
             // 
+            // methodHintEdit1
+            // 
+            this.methodHintEdit1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.methodHintEdit1.Font = new System.Drawing.Font("굴림체", 9F);
+            this.methodHintEdit1.Location = new System.Drawing.Point(94, 219);
+            this.methodHintEdit1.MaximumSize = new System.Drawing.Size(430, 80);
+            this.methodHintEdit1.MinimumSize = new System.Drawing.Size(430, 80);
+            this.methodHintEdit1.Name = "methodHintEdit1";
+            this.methodHintEdit1.Padding = new System.Windows.Forms.Padding(4);
+            this.methodHintEdit1.Size = new System.Drawing.Size(430, 80);
+            this.methodHintEdit1.TabIndex = 3;
+            this.methodHintEdit1.Visible = false;
+            this.methodHintEdit1.btnOK_Clicked += new System.EventHandler(this.methodHintEdit1_btnOK_Clicked);
+            // 
             // MethodList
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
             this.ClientSize = new System.Drawing.Size(641, 639);
+            this.Controls.Add(this.methodHintEdit1);
             this.Controls.Add(this.listView1);
             this.Controls.Add(this.panel1);
             this.Font = new System.Drawing.Font("굴림체", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MethodList";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -122,5 +139,6 @@
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.ColumnHeader columnHeader1;
+        private MethodHintEdit methodHintEdit1;
     }
 }

@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Xml;
 using System.Collections;
+using Newtonsoft.Json;
 
 namespace JSFW
 {
@@ -372,25 +373,27 @@ namespace JSFW
         /// <returns></returns>
         public static string Serialize<T>(this T value)
         {
-            if (value == null) return string.Empty;
-            string xml = "";
-            try
-            {
-                var xmlSerializer = new System.Xml.Serialization.XmlSerializer(typeof(T));
-                using (var stringWriter = new System.IO.StringWriter())
-                {
-                    using (var xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings { Indent = true }))
-                    {
-                        xmlSerializer.Serialize(xmlWriter, value);
-                        xml = stringWriter.ToString();
-                    }
-                }
-            }
-            catch
-            {
-                // 변환 중 Error!
-            }
-            return xml;
+            return JsonConvert.SerializeObject(value);
+
+            //if (value == null) return string.Empty;
+            //string xml = "";
+            //try
+            //{
+            //    var xmlSerializer = new System.Xml.Serialization.XmlSerializer(typeof(T));
+            //    using (var stringWriter = new System.IO.StringWriter())
+            //    {
+            //        using (var xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings { Indent = true }))
+            //        {
+            //            xmlSerializer.Serialize(xmlWriter, value);
+            //            xml = stringWriter.ToString();
+            //        }
+            //    }
+            //}
+            //catch
+            //{
+            //    // 변환 중 Error!
+            //}
+            //return xml;
         }
 
         /// <summary>
@@ -401,22 +404,23 @@ namespace JSFW
         /// <returns></returns>
         public static T DeSerialize<T>(this string xml) where T : class, new()
         {
-            T obj = default(T);
-            try
-            {
-                var xmlSerializer = new System.Xml.Serialization.XmlSerializer(typeof(T));
-                using (var stringReader = new System.IO.StringReader(xml))
-                {
-                    using (var reader = XmlReader.Create(stringReader, new XmlReaderSettings()))
-                    {
-                        obj = xmlSerializer.Deserialize(reader) as T;
-                    }
-                }
-            }
-            catch
-            {
-            }
-            return obj;
+            return JsonConvert.DeserializeObject<T>(xml);
+            //T obj = default(T);
+            //try
+            //{
+            //    var xmlSerializer = new System.Xml.Serialization.XmlSerializer(typeof(T));
+            //    using (var stringReader = new System.IO.StringReader(xml))
+            //    {
+            //        using (var reader = XmlReader.Create(stringReader, new XmlReaderSettings()))
+            //        {
+            //            obj = xmlSerializer.Deserialize(reader) as T;
+            //        }
+            //    }
+            //}
+            //catch
+            //{
+            //}
+            //return obj;
         }
 
         /// <summary>

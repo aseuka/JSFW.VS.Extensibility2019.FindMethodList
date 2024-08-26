@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using EnvDTE;
 using JSFW;
+using Microsoft.VisualStudio.Shell.Interop;
 
 /*
     윈도우 글자크기 100% 일때 아이템 높이값이 12, > 125%가 되어 있으면 깨져서 보임. 
@@ -37,18 +38,21 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             Elements = null; CurrentSelection = null;
         }
 
-        internal void SetMethodList(List<MethodList.MethodCodeFunctionObject> elmts, TextSelection currentSelection) {
+        internal void SetMethodList(List<MethodList.MethodCodeFunctionObject> elmts, TextSelection currentSelection)
+        {
             CurrentSelection = currentSelection;
             Elements = elmts;
-            MethodList.MethodCodeFunctionObject.Load_Keywords();  
+            MethodList.MethodCodeFunctionObject.Load_Keywords();
+            MethodList.MethodCodeFunctionObject.Load_Hints();
 
-            ListViewBind(Elements);  
+            ListViewBind(Elements);
             SetComboBox();
 
             listView1.Refresh();
         }
 
-        class GroupSort {
+        class GroupSort
+        {
             public string Name { get; set; }
             public int FirstItemLineNumber { get; set; }
         }
@@ -67,7 +71,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
 
             Dictionary<string, List<MethodList.MethodCodeFunctionObject>> group = new Dictionary<string, List<MethodCodeFunctionObject>>();
             foreach (MethodList.MethodCodeFunctionObject item in elements)
-            { 
+            {
                 if (group.ContainsKey(item.ClassName) == false)
                 {
                     group.Add(item.ClassName, new List<MethodCodeFunctionObject>() { item });
@@ -78,38 +82,33 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                     group[item.ClassName].Add(item);
                 }
             }
-             
+
             for (int loop = listView1.Items.Count - 1; loop >= 0; loop--)
             {
                 listView1.Items[loop].Tag = null;
             }
             listView1.Items.Clear();
 
-            grpSort.Sort( new GroupSortComarer() ); //클래스 순서대로 나타나게 하기 위해... 소팅함.
+            grpSort.Sort(new GroupSortComarer()); //클래스 순서대로 나타나게 하기 위해... 소팅함.
 
             foreach (var grp in grpSort)
             {
                 var item = group[grp.Name];
                 ListViewGroup lvg = new ListViewGroup(grp.Name);
-                listView1.Groups.Add( lvg );
+                listView1.Groups.Add(lvg);
 
                 foreach (var subitem in item)
                 {
                     ListViewItem lstItem = new ListViewItem(subitem.DisplayText, lvg);
                     listView1.Items.Add(lstItem);
                     lstItem.Tag = subitem;
-
-                    KeywordClass kw = subitem.GetKeyword();
-                    if (kw != null) {
-                        lstItem.SubItems.Add(kw.Comment);
-                    }
                 }
             }
 
             group.Clear();
             group = null;
         }
-         
+
         internal class MethodCodeFunctionObject
         {
             //string[] ImpMethodLists = new string[] {
@@ -149,9 +148,19 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
 
             internal KeywordClass GetKeyword()
             {
-                if( Keywords != null)
+                if (Keywords != null)
                     return Keywords.Find(f => Name.ToUpper().Contains(f.Name.ToUpper()));
                 return null;
+            }
+
+            internal string GetMethodHint()
+            {
+                string hint = null;
+                bool hasFullName = Hints.Any(a => a.Key.ToUpper() == FullName.ToUpper());
+                if (hasFullName) {
+                    hint = Hints[FullName.ToUpper()];
+                }
+                return hint;
             }
 
             public string Name { get; set; }
@@ -160,9 +169,11 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
 
             public string DisplayText
             {
-                get {
-                    string display = Name; 
-                    if (Element != null) {
+                get
+                {
+                    string display = Name;
+                    if (Element != null)
+                    {
                         List<string> prms = new List<string>();
 
                         foreach (CodeElement prm in Element.Parameters)
@@ -174,7 +185,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                         // 리턴타입
                         //string retType = this.Element.Type.AsFullName; 
                     }
-                    return display ; 
+                    return display;
                 }
             }
 
@@ -189,14 +200,15 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                     int lastIndex = FullName.LastIndexOf('.');
 
                     if (0 <= lastIndex && lastIndex < FullName.Length)
-                    {  
-                        return FullName.Substring(0, lastIndex );
+                    {
+                        return FullName.Substring(0, lastIndex);
                     }
-                    else {
+                    else
+                    {
                         return FullName;
                     }
                 }
-                
+
             }
 
             public override string ToString()
@@ -223,6 +235,8 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                     }
                     data = null;
                 }
+                catch (Exception ex)
+                { }
                 finally
                 {
                     IsDataBinding = false;
@@ -237,13 +251,12 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                     if (Keywords == null) Keywords = new List<KeywordClass>();
 
                     Keywords.Clear();
-                    if( newKeywords != null)
-                    Keywords.AddRange(newKeywords.ToArray());
+                    if (newKeywords != null)
+                        Keywords.AddRange(newKeywords.ToArray());
 
                     string data = Keywords.Serialize();
                     Properties.Settings.Default.Keywords = data;
                     Properties.Settings.Default.Save();
-
                 }
                 finally
                 {
@@ -251,21 +264,101 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 }
             }
 
+            internal static Dictionary<string, string> Hints { get; set; }
+
+            internal static void Load_Hints()
+            {
+                try
+                {
+                    Properties.Settings.Default.Reload();
+                    IsDataBinding = true;
+                    if (Hints == null) Hints = new Dictionary<string, string>();
+
+                    Hints.Clear();
+                    Dictionary<string, string> data = ("" + Properties.Settings.Default.Hints).DeSerialize<Dictionary<string, string>>();
+                    if (data != null)
+                    {
+                        foreach (var item in data)
+                        {
+                            Hints.Add(item.Key.ToUpper(), item.Value);
+                        }
+                    }
+                    data = null;
+                }
+                catch (Exception ex)
+                { }
+                finally
+                {
+                    IsDataBinding = false;
+                }
+            }
+             
+            internal static void Save_Hints(Dictionary<string, string> newHints)
+            {
+                try
+                {
+                    IsDataBinding = true;
+                    if (Hints == null) Hints = new Dictionary<string, string>();
+
+                    Hints.Clear();
+                    if (newHints != null)
+                    {
+                        foreach (var item in newHints)
+                        {
+                            Hints.Add(item.Key.ToUpper(), item.Value);
+                        }
+                    }
+                    string data = Hints.Serialize();
+                    Properties.Settings.Default.Hints = data;
+                    Properties.Settings.Default.Save(); 
+                }
+                finally
+                {
+                    IsDataBinding = false;
+                }
+            }
+
+            internal static void Save_Hints(string methodFullName, string comment)
+            {
+                try
+                {
+                    IsDataBinding = true;
+                    if (Hints == null) Hints = new Dictionary<string, string>();
+
+                    if (Hints.ContainsKey(methodFullName.ToUpper()))
+                    {
+                        Hints[methodFullName.ToUpper()] = comment;
+                    }
+                    else
+                    {
+                        Hints.Add(methodFullName.ToUpper(), comment);
+                    } 
+                    string data = Hints.Serialize();
+                    Properties.Settings.Default.Hints = data;
+                    Properties.Settings.Default.Save();
+                }
+                finally
+                {
+                    IsDataBinding = false;
+                }
+            }
         }
-         
+
+
+
         private void listBox1_DrawItem(object sender, DrawItemEventArgs e)
         {
             e.DrawBackground();
             e.DrawFocusRectangle();
             if (e.Index < 0) return;
             if (Elements == null) return;
-             
+
             MethodCodeFunctionObject item = Elements[e.Index] as MethodCodeFunctionObject;
             if (item == null) return;
 
-            KeywordClass kw = item.GetKeyword(); 
+            KeywordClass kw = item.GetKeyword();
             if (kw != null)
-            { 
+            {
                 TextRenderer.DrawText(e.Graphics, item.DisplayText, new Font(e.Font.FontFamily, e.Font.Size, FontStyle.Bold), e.Bounds.Location, kw.ForeColor);
             }
             else if (item.FunctionKind == vsCMFunction.vsCMFunctionConstructor)
@@ -294,24 +387,25 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             if (settingForm == null)
             {
                 settingForm = new MethodKeywordsSettingForm();
-                settingForm.FormClosed += (fs, fe) => {
+                settingForm.FormClosed += (fs, fe) =>
+                {
                     settingForm = null;
                 };
             }
-             
+
             settingForm.Load_Keywords();
 
-            if ( ( ModifierKeys & Keys.Control ) == Keys.Control && 
+            if ((ModifierKeys & Keys.Control) == Keys.Control &&
                 0 < listView1.SelectedItems.Count)
             {
                 settingForm.SetMethodName(listView1.SelectedItems[0].Text);
             }
 
-            settingForm.ShowDialog(this); 
+            settingForm.ShowDialog(this);
 
             listView1.Refresh();
 
-            SetComboBox(); 
+            SetComboBox();
         }
 
         bool IsComboBoxSetting = false;
@@ -319,7 +413,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
         {
             try
             {
-                IsComboBoxSetting = true; 
+                IsComboBoxSetting = true;
                 comboBox1.SelectedIndex = -1;
                 comboBox1.Items.Clear();
                 comboBox1.Items.Add("");
@@ -346,7 +440,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 {
                     listView1.SelectedItems[loop].Selected = false;
                 }
-                listView1.SelectedIndices.Clear(); 
+                listView1.SelectedIndices.Clear();
             }
 
             //// 찾기. 
@@ -368,7 +462,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             //}
             //if(listView1.FocusedItem != null) listView1.Select();
             listView1.Refresh();
-        } 
+        }
 
         private void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
@@ -388,8 +482,8 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
 
         private void MethodList_Resize(object sender, EventArgs e)
         {
-            if(0 < listView1.Columns.Count)
-            listView1.Columns[0].Width = listView1.Width - 8;
+            if (0 < listView1.Columns.Count)
+                listView1.Columns[0].Width = listView1.Width - 8;
         }
 
         private void listView1_DrawItem(object sender, DrawListViewItemEventArgs e)
@@ -401,14 +495,16 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
 
             MethodCodeFunctionObject item = e.Item.Tag as MethodCodeFunctionObject;
             if (item == null) return;
-              
+
             Color ItemForeColor = e.Item.ForeColor;
             KeywordClass kw = item.GetKeyword();
 
-            string displayText = $"{item.DisplayText,-45} {kw?.Comment}".TrimEnd();
+            string hint = item.GetMethodHint();
+
+            string displayText = $"{item.DisplayText,-45} {hint}".TrimEnd();
 
             if (kw != null)
-            { 
+            {
                 if (e.State == (ListViewItemStates.Selected | ListViewItemStates.Focused))
                 {
                     // vs가 어둡게일때 - 글씨를 흰색으로 배경을 ... 
@@ -421,7 +517,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                     using (var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
                         TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, kw.ForeColor, e.Item.BackColor);
                     ItemForeColor = kw.ForeColor;
-                } 
+                }
             }
             else if (item.FunctionKind == vsCMFunction.vsCMFunctionConstructor)
             {
@@ -437,15 +533,15 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                     using (var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
                         TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, Color.DodgerBlue);
                     ItemForeColor = Color.DodgerBlue;
-                } 
+                }
             }
             else
             {
                 if (e.State == (ListViewItemStates.Selected | ListViewItemStates.Focused))
                 {
                     // vs가 어둡게일때 - 글씨를 흰색으로 배경을 ... 
-                    using( var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
-                    TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, e.Item.BackColor, e.Item.ForeColor);
+                    using (var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
+                        TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, e.Item.BackColor, e.Item.ForeColor);
                     ItemForeColor = e.Item.BackColor;
                 }
                 else
@@ -456,12 +552,12 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             }
 
             string searchText = ("" + comboBox1.SelectedItem).Trim();
-            if ( string.IsNullOrWhiteSpace(searchText) == false 
-                && e.Item.Text.ToUpper().Contains( searchText.ToUpper()))
+            if (string.IsNullOrWhiteSpace(searchText) == false
+                && e.Item.Text.ToUpper().Contains(searchText.ToUpper()))
             {
-                SizeF szText = e.Graphics.MeasureString(e.Item.Text, e.Item.Font); 
-                using( Pen pen = new Pen(ItemForeColor, 2f))
-                e.Graphics.DrawLine(pen, e.Bounds.X, e.Bounds.Y + e.Bounds.Height - 3f, e.Bounds.X + szText.Width + 10f, e.Bounds.Y + e.Bounds.Height - 3f);
+                SizeF szText = e.Graphics.MeasureString(e.Item.Text, e.Item.Font);
+                using (Pen pen = new Pen(ItemForeColor, 2f))
+                    e.Graphics.DrawLine(pen, e.Bounds.X, e.Bounds.Y + e.Bounds.Height - 3f, e.Bounds.X + szText.Width + 10f, e.Bounds.Y + e.Bounds.Height - 3f);
             }
         }
 
@@ -502,11 +598,29 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 listView1.SelectedItems.Clear();
                 listView1.Update();
             }
+            else if (e.KeyCode == Keys.F2)
+            {
+                //수정! 
+                if (0 < listView1.SelectedItems.Count)
+                {
+                    MethodCodeFunctionObject methodItem = listView1.SelectedItems[0].Tag as MethodCodeFunctionObject;
+                    methodHintEdit1.ShowPopup(methodItem); 
+                }
+            }
         }
 
         private void listView1_KeyDown(object sender, KeyEventArgs e)
         {
             MethodList_KeyDown(sender, e);
+        }
+
+        private void methodHintEdit1_btnOK_Clicked(object sender, EventArgs e)
+        {
+            if (methodHintEdit1.IsOK)
+            { 
+                MethodCodeFunctionObject.Save_Hints(methodHintEdit1.MethodFullName, methodHintEdit1.Comment); 
+                listView1.Refresh();
+            }
         }
     }
 
@@ -515,8 +629,6 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
         public string Name { get; set; }
 
         public string HTMLColor { get; set; } = System.Drawing.ColorTranslator.ToHtml(Color.Black);
-
-        public string Comment { get; set; } 
 
         public Color ForeColor
         {

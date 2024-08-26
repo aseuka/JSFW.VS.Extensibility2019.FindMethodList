@@ -34,5 +34,17 @@ namespace JSFW.VS.Extensibility.Properties {
                 this["Keywords"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Hints {
+            get {
+                return ((string)(this["Hints"]));
+            }
+            set {
+                this["Hints"] = value;
+            }
+        }
     }
 }

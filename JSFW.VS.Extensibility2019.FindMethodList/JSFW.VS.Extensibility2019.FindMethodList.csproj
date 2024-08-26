@@ -56,6 +56,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Cmds\Controls\MethodHint.cs" />
+    <Compile Include="Cmds\Controls\MethodHintEdit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Cmds\Controls\MethodHintEdit.Designer.cs">
+      <DependentUpon>MethodHintEdit.cs</DependentUpon>
+    </Compile>
     <Compile Include="Cmds\FindingMethodList.cs" />
     <Compile Include="Cmds\Controls\KeywordEditControl.cs">
       <SubType>UserControl</SubType>
@@ -207,6 +214,9 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Win32.Primitives" />
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="SourceGrid">
       <HintPath>..\..\JSFW.CommonFiles\RefDlls\SourceGrid.dll</HintPath>
     </Reference>
@@ -227,6 +237,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Cmds\Controls\KeywordEditControl.resx">
       <DependentUpon>KeywordEditControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Cmds\Controls\MethodHintEdit.resx">
+      <DependentUpon>MethodHintEdit.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Cmds\Controls\MethodKeywordsSettingForm.resx">
       <DependentUpon>MethodKeywordsSettingForm.cs</DependentUpon>

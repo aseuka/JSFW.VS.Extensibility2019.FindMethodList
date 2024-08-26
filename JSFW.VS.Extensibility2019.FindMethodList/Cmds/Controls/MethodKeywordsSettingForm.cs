@@ -36,7 +36,6 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 edit.SetKeywordInfo(new KeywordClass() { 
                         Name = obj.KeyWordText, 
                         HTMLColor = KeywordClass.ConvertHTMLColor(obj.KeywordForeColor), 
-                        Comment = obj.Comment
                 });
                 flowLayoutPanel1.Controls.Add(edit);
             }
@@ -104,8 +103,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             {
                 newKeywords.Add(new KeywordClass() { 
                     Name = kwEdit.KeyWordText, 
-                    HTMLColor = KeywordClass.ConvertHTMLColor(kwEdit.KeywordForeColor), 
-                    Comment = kwEdit.Comment,    
+                    HTMLColor = KeywordClass.ConvertHTMLColor(kwEdit.KeywordForeColor),                    
                 });
             }
             MethodList.MethodCodeFunctionObject.Save_Keywords(newKeywords);
