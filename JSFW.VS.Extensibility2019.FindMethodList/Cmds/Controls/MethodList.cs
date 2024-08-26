@@ -265,6 +265,8 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             }
 
             internal static Dictionary<string, string> Hints { get; set; }
+            public string Comment { get; internal set; }
+            public string DocComment { get; internal set; }
 
             internal static void Load_Hints()
             {
@@ -503,19 +505,22 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
 
             string displayText = $"{item.DisplayText,-45} {hint}".TrimEnd();
 
+            Point pt = e.Bounds.Location; 
+            pt.Y += 2;
+
             if (kw != null)
             {
                 if (e.State == (ListViewItemStates.Selected | ListViewItemStates.Focused))
                 {
                     // vs가 어둡게일때 - 글씨를 흰색으로 배경을 ... 
                     using (var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
-                        TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, e.Item.BackColor, kw.ForeColor);
+                        TextRenderer.DrawText(e.Graphics, displayText, fnt, pt, e.Item.BackColor, kw.ForeColor);
                     ItemForeColor = e.Item.BackColor;
                 }
                 else
                 {
                     using (var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
-                        TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, kw.ForeColor, e.Item.BackColor);
+                        TextRenderer.DrawText(e.Graphics, displayText, fnt, pt, kw.ForeColor, e.Item.BackColor);
                     ItemForeColor = kw.ForeColor;
                 }
             }
@@ -525,13 +530,13 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 {
                     // vs가 어둡게일때 - 글씨를 흰색으로 배경을 ... 
                     using (var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
-                        TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, Color.White, Color.DodgerBlue);
+                        TextRenderer.DrawText(e.Graphics, displayText, fnt, pt, Color.White, Color.DodgerBlue);
                     ItemForeColor = Color.White;
                 }
                 else
                 {
                     using (var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
-                        TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, Color.DodgerBlue);
+                        TextRenderer.DrawText(e.Graphics, displayText, fnt, pt, Color.DodgerBlue);
                     ItemForeColor = Color.DodgerBlue;
                 }
             }
@@ -541,12 +546,12 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 {
                     // vs가 어둡게일때 - 글씨를 흰색으로 배경을 ... 
                     using (var fnt = new Font(e.Item.Font.FontFamily, e.Item.Font.Size, FontStyle.Bold))
-                        TextRenderer.DrawText(e.Graphics, displayText, fnt, e.Bounds.Location, e.Item.BackColor, e.Item.ForeColor);
+                        TextRenderer.DrawText(e.Graphics, displayText, fnt, pt, e.Item.BackColor, e.Item.ForeColor);
                     ItemForeColor = e.Item.BackColor;
                 }
                 else
                 {
-                    TextRenderer.DrawText(e.Graphics, displayText, e.Item.Font, e.Bounds.Location, e.Item.ForeColor, e.Item.BackColor);
+                    TextRenderer.DrawText(e.Graphics, displayText, e.Item.Font, pt, e.Item.ForeColor, e.Item.BackColor);
                     ItemForeColor = e.Item.ForeColor;
                 }
             }

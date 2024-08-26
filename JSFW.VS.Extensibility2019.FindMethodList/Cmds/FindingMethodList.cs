@@ -105,59 +105,66 @@ namespace JSFW.VS.Extensibility.Cmds
 
             try
             {
-                EnvDTE80.DTE2 _applicationObject = ServiceProvider.GetService(typeof(EnvDTE.DTE)) as EnvDTE80.DTE2;
-
-                /////*
-                //// activedocumentchanged, documentsaved 이벤트에다가만 걸어버리면..
-                //// */
-                ////if (_applicationObject.ActiveDocument != null)
-                ////{
-                ////    //Get active document 
-                ////    EnvDTE.TextDocument textDoc = (EnvDTE.TextDocument)_applicationObject.ActiveDocument.Object("");
-                ////    if (textDoc != null)
-                ////    {
-                ////        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                ////        string keys = "";
-                ////        foreach (EnvDTE.Command cmd in _applicationObject.Commands)
-                ////        {
-                ////            keys = "";
-                ////            if (cmd.Bindings != null && cmd.Bindings is Array && 0 < ((Array)cmd.Bindings).Length)
-                ////            {
-                ////                foreach (var bindItem in ((Array)cmd.Bindings))
-                ////                {
-                ////                    keys += bindItem + " || ";
-                ////                }
-                ////            }
-                ////            sb.AppendFormat(@"Name={0}, ID={1}, Guid={2}, Key={3}", cmd.Name, cmd.ID, cmd.Guid, keys);
-                ////            sb.AppendLine();
-                ////        }
-                ////        textDoc.StartPoint.CreateEditPoint();
-                ////        textDoc.Selection.Insert("" + sb, (int)EnvDTE.vsInsertFlags.vsInsertFlagsContainNewText);
-                ////        textDoc = null;
-                ////    }
-                ////} 
-
-                //Check active document
-                if (_applicationObject.ActiveDocument != null)
+                Microsoft.VisualStudio.Shell.ThreadHelper.JoinableTaskFactory.Run(async delegate
                 {
-                    var codeElems = FindMthListEx.Descendants(_applicationObject.ActiveDocument.ProjectItem.FileCodeModel, EnvDTE.vsCMElement.vsCMElementFunction)
-                                                                .Cast<EnvDTE.CodeFunction>().Select(o => new MethodList.MethodCodeFunctionObject
-                                                                {
-                                                                    FunctionKind = o.FunctionKind,
-                                                                    FullName = o.FullName,
-                                                                    Name = o.Name,
-                                                                    Line = o.StartPoint.Line,
-                                                                    Element = o,
-                                                                }).OrderBy(o => o.Name).ToList();
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                    EnvDTE80.DTE2 _applicationObject = ServiceProvider.GetService(typeof(EnvDTE.DTE)) as EnvDTE80.DTE2;
 
-                    EnvDTE.TextDocument objTextDocument = (EnvDTE.TextDocument)_applicationObject.ActiveDocument.Object("");
-                    EnvDTE.TextSelection objTextSelection = objTextDocument.Selection;
-                    using (MethodList mm = new MethodList())
-                    {
-                        mm.SetMethodList(codeElems, objTextSelection);
-                        mm.ShowDialog();
+                    /////*
+                    //// activedocumentchanged, documentsaved 이벤트에다가만 걸어버리면..
+                    //// */
+                    ////if (_applicationObject.ActiveDocument != null)
+                    ////{
+                    ////    //Get active document 
+                    ////    EnvDTE.TextDocument textDoc = (EnvDTE.TextDocument)_applicationObject.ActiveDocument.Object("");
+                    ////    if (textDoc != null)
+                    ////    {
+                    ////        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                    ////        string keys = "";
+                    ////        foreach (EnvDTE.Command cmd in _applicationObject.Commands)
+                    ////        {
+                    ////            keys = "";
+                    ////            if (cmd.Bindings != null && cmd.Bindings is Array && 0 < ((Array)cmd.Bindings).Length)
+                    ////            {
+                    ////                foreach (var bindItem in ((Array)cmd.Bindings))
+                    ////                {
+                    ////                    keys += bindItem + " || ";
+                    ////                }
+                    ////            }
+                    ////            sb.AppendFormat(@"Name={0}, ID={1}, Guid={2}, Key={3}", cmd.Name, cmd.ID, cmd.Guid, keys);
+                    ////            sb.AppendLine();
+                    ////        }
+                    ////        textDoc.StartPoint.CreateEditPoint();
+                    ////        textDoc.Selection.Insert("" + sb, (int)EnvDTE.vsInsertFlags.vsInsertFlagsContainNewText);
+                    ////        textDoc = null;
+                    ////    }
+                    ////} 
+
+                    //Check active document
+
+                    if (_applicationObject.ActiveDocument != null)
+                    { 
+                        var codeElems = FindMthListEx.Descendants(_applicationObject.ActiveDocument.ProjectItem.FileCodeModel, EnvDTE.vsCMElement.vsCMElementFunction)                                                        
+                                                     .Cast<EnvDTE.CodeFunction>()
+                                                     .Select(o =>  new MethodList.MethodCodeFunctionObject
+                                                         {
+                                                             FunctionKind = o.FunctionKind,
+                                                             FullName = o.FullName,
+                                                             Name = o.Name,
+                                                             Line = o.StartPoint.Line,
+                                                             Element = o,
+                                                             Comment = o.Comment,
+                                                             DocComment = o.DocComment,
+                                                         }).OrderBy(o => o.Name).ToList();
+                        EnvDTE.TextDocument objTextDocument = (EnvDTE.TextDocument)_applicationObject.ActiveDocument.Object("");
+                        EnvDTE.TextSelection objTextSelection = objTextDocument.Selection;
+                        using (MethodList mm = new MethodList())
+                        {
+                            mm.SetMethodList(codeElems, objTextSelection);
+                            mm.ShowDialog();
+                        }
                     }
-                }
+                });
             }
             catch (Exception ex)
             {

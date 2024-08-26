@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using static JSFW.VS.Extensibility.Cmds.Controls.MethodList;
 
 namespace JSFW.VS.Extensibility.Cmds.Controls
@@ -60,6 +61,12 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             lbMethodName.Text = methodItem.FullName;
             txtHint.Text = methodItem.GetMethodHint();
 
+            if (string.IsNullOrWhiteSpace(txtHint.Text))
+                txtHint.Text = methodItem.Comment.Trim();
+
+            if (string.IsNullOrWhiteSpace(txtHint.Text))
+                txtHint.Text = GetSummaryText(methodItem.DocComment.Trim());
+
             txtHint.Focus();
 
             int x = Parent.Width / 2 - this.Width / 2;
@@ -70,6 +77,21 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
 
             this.Show();
             this.BringToFront();
+        }
+
+        private string GetSummaryText(string xml)
+        {
+            if (string.IsNullOrWhiteSpace(xml)) return "";
+            // <doc><summary>...</summary></doc>
+            try
+            {
+                XDocument doc = XDocument.Parse(xml);
+                return doc.Element("doc")?.Element("summary").Value.Trim() ?? "";
+            }
+            catch (Exception)
+            {
+                return "";
+            }
         }
     }
 }
