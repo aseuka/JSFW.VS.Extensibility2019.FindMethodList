@@ -67,8 +67,6 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             if (string.IsNullOrWhiteSpace(txtHint.Text))
                 txtHint.Text = GetSummaryText(methodItem.DocComment.Trim());
 
-            txtHint.Focus();
-
             int x = Parent.Width / 2 - this.Width / 2;
             int y = Parent.Height / 2 - this.Height / 2;
 
@@ -77,6 +75,8 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
 
             this.Show();
             this.BringToFront();
+
+            txtHint.Focus();
         }
 
         private string GetSummaryText(string xml)
