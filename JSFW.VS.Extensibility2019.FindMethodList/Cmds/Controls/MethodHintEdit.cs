@@ -36,6 +36,11 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
+            Cancel();
+        }
+
+        internal void Cancel()
+        {
             IsOK = false;
             this.Hide();
             this.SendToBack();
@@ -53,6 +58,10 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             if (e.KeyCode == Keys.Enter)
             {
                 btnOK.PerformClick();
+            }
+            else if (e.KeyCode == Keys.Escape && this.Visible)
+            {
+                Cancel();
             }
         }
 

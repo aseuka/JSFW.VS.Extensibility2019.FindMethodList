@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using System.Collections.Generic;
 using System.Linq;
 using JSFW.VS.Extensibility.Cmds.Controls;
+using EnvDTE;
 
 namespace JSFW.VS.Extensibility.Cmds
 {
@@ -160,6 +161,14 @@ namespace JSFW.VS.Extensibility.Cmds
                         EnvDTE.TextSelection objTextSelection = objTextDocument.Selection;
                         using (MethodList mm = new MethodList())
                         {
+                            string prjName = "";
+                            Array _projects = _applicationObject.ActiveSolutionProjects as Array;
+                            if (_projects.Length != 0 && _projects != null)
+                            {
+                                Project _selectedProject = _projects.GetValue(0) as Project;
+                                prjName = _selectedProject.Name;
+                            }
+                            mm.SetProjectName(prjName);
                             mm.SetMethodList(codeElems, objTextSelection);
                             mm.ShowDialog();
                         }

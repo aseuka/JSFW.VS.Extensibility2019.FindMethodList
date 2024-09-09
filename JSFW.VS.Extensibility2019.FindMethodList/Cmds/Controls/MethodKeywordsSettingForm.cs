@@ -97,7 +97,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
         }
 
         private void Save()
-        {
+        { 
             List<KeywordClass> newKeywords = new List<KeywordClass>();
             foreach (KeywordEditControl kwEdit in flowLayoutPanel1.Controls)
             {
@@ -106,7 +106,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                     HTMLColor = KeywordClass.ConvertHTMLColor(kwEdit.KeywordForeColor),                    
                 });
             }
-            MethodList.MethodCodeFunctionObject.Save_Keywords(newKeywords);
+            MethodList.MethodCodeFunctionObject.Save_Keywords(ProjectName, newKeywords);
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -115,10 +115,13 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             this.Close(); 
         }
 
-        internal void Load_Keywords()
-        {
-            MethodList.MethodCodeFunctionObject.Load_Keywords();
 
+        public string ProjectName { get; private set; }
+
+        internal void Load_Keywords(string prjName)
+        {
+            ProjectName = prjName;
+            MethodList.MethodCodeFunctionObject.Load_Keywords(prjName);
             // 바인딩.
             DataBind();
         }

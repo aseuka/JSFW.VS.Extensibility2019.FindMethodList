@@ -22,29 +22,5 @@ namespace JSFW.VS.Extensibility.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Keywords {
-            get {
-                return ((string)(this["Keywords"]));
-            }
-            set {
-                this["Keywords"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Hints {
-            get {
-                return ((string)(this["Hints"]));
-            }
-            set {
-                this["Hints"] = value;
-            }
-        }
     }
 }

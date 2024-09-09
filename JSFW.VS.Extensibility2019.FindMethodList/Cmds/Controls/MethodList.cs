@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using EnvDTE;
 using JSFW;
+using JSFW.VS.Extensibility.FindMethodList;
 using Microsoft.VisualStudio.Shell.Interop;
 
 /*
@@ -38,12 +40,18 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             Elements = null; CurrentSelection = null;
         }
 
+        public string ProjectName { get; private set; }
+        internal void SetProjectName(string prjName)
+        {
+            ProjectName = prjName;
+        }
+
         internal void SetMethodList(List<MethodList.MethodCodeFunctionObject> elmts, TextSelection currentSelection)
         {
             CurrentSelection = currentSelection;
             Elements = elmts;
-            MethodList.MethodCodeFunctionObject.Load_Keywords();
-            MethodList.MethodCodeFunctionObject.Load_Hints();
+            MethodList.MethodCodeFunctionObject.Load_Keywords(ProjectName);
+            MethodList.MethodCodeFunctionObject.Load_Hints(ProjectName);
 
             ListViewBind(Elements);
             SetComboBox();
@@ -219,16 +227,22 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             internal static List<KeywordClass> Keywords { get; set; }
             internal static bool IsDataBinding = false;
 
-            internal static void Load_Keywords()
+            internal static void Load_Keywords(string prjName)
             {
                 try
                 {
-                    Properties.Settings.Default.Reload();
+                    string keywordsJson = "";
+                    string keywordsFilePath = Path.Combine(VSPackage._DIR_JSFW + "MethodList", $"{prjName}.keywords.json");
+                    if (File.Exists(keywordsFilePath))
+                    {
+                        keywordsJson = File.ReadAllText(keywordsFilePath, Encoding.UTF8);
+                    }
+
                     IsDataBinding = true;
                     if (Keywords == null) Keywords = new List<KeywordClass>();
 
                     Keywords.Clear();
-                    List<KeywordClass> data = ("" + Properties.Settings.Default.Keywords).DeSerialize<List<KeywordClass>>();
+                    List<KeywordClass> data = ("" + keywordsJson).DeSerialize<List<KeywordClass>>();
                     if (data != null)
                     {
                         Keywords.AddRange(data.ToArray());
@@ -243,7 +257,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 }
             }
 
-            internal static void Save_Keywords(List<KeywordClass> newKeywords)
+            internal static void Save_Keywords(string prjName, List<KeywordClass> newKeywords)
             {
                 try
                 {
@@ -253,10 +267,14 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                     Keywords.Clear();
                     if (newKeywords != null)
                         Keywords.AddRange(newKeywords.ToArray());
-
+                     
                     string data = Keywords.Serialize();
-                    Properties.Settings.Default.Keywords = data;
-                    Properties.Settings.Default.Save();
+                    string keywordsFilePath = Path.Combine(VSPackage._DIR_JSFW + "MethodList", $"{prjName}.keywords.json");
+                    string root = Path.GetDirectoryName(keywordsFilePath);
+                    if (!Directory.Exists(root)) {
+                        Directory.CreateDirectory(root);
+                    }
+                    File.WriteAllText(keywordsFilePath, data, Encoding.UTF8); 
                 }
                 finally
                 {
@@ -268,16 +286,21 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
             public string Comment { get; internal set; }
             public string DocComment { get; internal set; }
 
-            internal static void Load_Hints()
+            internal static void Load_Hints(string prjName)
             {
                 try
                 {
-                    Properties.Settings.Default.Reload();
+                    string hintsJson = "";
+                    string hintFilePath = Path.Combine( VSPackage._DIR_JSFW + "MethodList", $"{prjName}.hint.json");
+                    if (File.Exists(hintFilePath))
+                    {
+                        hintsJson = File.ReadAllText(hintFilePath, Encoding.UTF8);
+                    }                    
                     IsDataBinding = true;
                     if (Hints == null) Hints = new Dictionary<string, string>();
 
                     Hints.Clear();
-                    Dictionary<string, string> data = ("" + Properties.Settings.Default.Hints).DeSerialize<Dictionary<string, string>>();
+                    Dictionary<string, string> data = ("" + hintsJson).DeSerialize<Dictionary<string, string>>();
                     if (data != null)
                     {
                         foreach (var item in data)
@@ -295,7 +318,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 }
             }
              
-            internal static void Save_Hints(Dictionary<string, string> newHints)
+            internal static void Save_Hints(string prjName, Dictionary<string, string> newHints)
             {
                 try
                 {
@@ -311,8 +334,13 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                         }
                     }
                     string data = Hints.Serialize();
-                    Properties.Settings.Default.Hints = data;
-                    Properties.Settings.Default.Save(); 
+                    string hintFilePath = Path.Combine(VSPackage._DIR_JSFW + "MethodList", $"{prjName}.hint.json");
+                    string root = Path.GetDirectoryName(hintFilePath);
+                    if (!Directory.Exists(root))
+                    {
+                        Directory.CreateDirectory(root);
+                    }
+                    File.WriteAllText(hintFilePath, data, Encoding.UTF8);
                 }
                 finally
                 {
@@ -320,7 +348,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 }
             }
 
-            internal static void Save_Hints(string methodFullName, string comment)
+            internal static void Save_Hints(string prjName, string methodFullName, string comment)
             {
                 try
                 {
@@ -336,8 +364,13 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                         Hints.Add(methodFullName.ToUpper(), comment);
                     } 
                     string data = Hints.Serialize();
-                    Properties.Settings.Default.Hints = data;
-                    Properties.Settings.Default.Save();
+                    string hintFilePath = Path.Combine(VSPackage._DIR_JSFW + "MethodList", $"{prjName}.hint.json");
+                    string root = Path.GetDirectoryName(hintFilePath);
+                    if (!Directory.Exists(root))
+                    {
+                        Directory.CreateDirectory(root);
+                    }
+                    File.WriteAllText(hintFilePath, data, Encoding.UTF8);
                 }
                 finally
                 {
@@ -395,7 +428,7 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 };
             }
 
-            settingForm.Load_Keywords();
+            settingForm.Load_Keywords(ProjectName);
 
             if ((ModifierKeys & Keys.Control) == Keys.Control &&
                 0 < listView1.SelectedItems.Count)
@@ -609,7 +642,12 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
                 if (0 < listView1.SelectedItems.Count)
                 {
                     MethodCodeFunctionObject methodItem = listView1.SelectedItems[0].Tag as MethodCodeFunctionObject;
-                    methodHintEdit1.ShowPopup(methodItem); 
+                    methodHintEdit1.ShowPopup(methodItem);
+                }
+            }
+            else if (e.KeyCode == Keys.Escape) {
+                if (methodHintEdit1.Visible) {
+                    methodHintEdit1.Cancel();
                 }
             }
         }
@@ -623,10 +661,12 @@ namespace JSFW.VS.Extensibility.Cmds.Controls
         {
             if (methodHintEdit1.IsOK)
             { 
-                MethodCodeFunctionObject.Save_Hints(methodHintEdit1.MethodFullName, methodHintEdit1.Comment); 
+                MethodCodeFunctionObject.Save_Hints(ProjectName, methodHintEdit1.MethodFullName, methodHintEdit1.Comment); 
                 listView1.Refresh();
             }
         }
+
+       
     }
 
     public class KeywordClass

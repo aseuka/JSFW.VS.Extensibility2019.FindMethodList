@@ -3,6 +3,8 @@ using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using EnvDTE;
 using Microsoft.VisualStudio;
@@ -41,6 +43,20 @@ namespace JSFW.VS.Extensibility.FindMethodList
         /// VSPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "15a082a4-4679-4da7-bfd5-f588c9fe70f0";
+
+        internal static readonly string _DRIVE = GetDrive(@"D:\");
+        private static string GetDrive(string drive)
+        {
+            if (!Directory.GetLogicalDrives().Contains(drive))
+            {
+                drive = Directory.GetLogicalDrives()[0];
+            }
+            return drive;
+        }
+        /// <summary>
+        /// {D:\\}JSFW\\
+        /// </summary>
+        internal readonly static string _DIR_JSFW = _DRIVE + "JSFW\\";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VSPackage"/> class.
