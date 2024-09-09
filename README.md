@@ -33,6 +33,16 @@
 
 ---
 
+- 메소드에 별도 힌트! ( 메소드 목록에서 메소드 구분을 할 수 있다.)<br />
+![image](https://github.com/user-attachments/assets/60b0cc2a-6fda-48e6-aa91-aafd1ff001dd)
+
+- 솔루션별 메소드에 힌트 추가!(+ 저장소 지정)<br />
+![image](https://github.com/user-attachments/assets/3e2c3579-03bf-4249-8b30-922fa843aa3b)
+솔루션별로 키워드, 힌트 저장소 마련<br />
+D:\JSFW\MethodList\ 아래<br />
+솔루션.{hint | keywords}.json 파일로 내용 저장.<br />
+<br />
+
 vs2022 설치 추가.
 
 ![image](https://github.com/aseuka/JSFW.VS.Extensibility2019.FindMethodList/assets/116536524/7e460abc-7b3a-4ffb-b5b8-9c40add70458)
